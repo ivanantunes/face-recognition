@@ -62,3 +62,13 @@ class DatabaseProvider():
             connection.close()
             return DatabaseResponse(False, 'Falha ao Executar Exclusão. Rollback Efetuado.', error)
 
+    def getData(self, sql=str, values=()):
+        connection = self.getConnection()
+        
+        try:
+            rows = connection.execute(sql, values).fetchall()
+            connection.close()
+            return DatabaseResponse(True, 'Consulta Realizada com Sucesso.', rows)
+        except Exception as error:
+            connection.close()
+            return DatabaseResponse(False, 'Falha ao Executar Consulta.', error)
