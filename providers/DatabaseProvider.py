@@ -37,7 +37,7 @@ class DatabaseProvider():
         except Exception as error:
             connection.rollback()
             connection.close()
-            return DatabaseResponse(False, 'Falha ao Executar Inserção. Rollback Efetuado.', error)
+            return DatabaseResponse(False, 'Falha ao Executar Inserção. Rollback Efetuado.', str(error))
 
     def update(self, sql=str, values=()):
         connection = self.getConnection()
@@ -51,7 +51,7 @@ class DatabaseProvider():
         except Exception as error:
             connection.rollback()
             connection.close()
-            return DatabaseResponse(False, 'Falha ao Executar Atualização. Rollback Efetuado.', error)
+            return DatabaseResponse(False, 'Falha ao Executar Atualização. Rollback Efetuado.', str(error))
 
     def delete(self, sql=str, values=()):
         connection = self.getConnection()
@@ -65,7 +65,7 @@ class DatabaseProvider():
         except Exception as error:
             connection.rollback()
             connection.close()
-            return DatabaseResponse(False, 'Falha ao Executar Exclusão. Rollback Efetuado.', error)
+            return DatabaseResponse(False, 'Falha ao Executar Exclusão. Rollback Efetuado.', str(error))
 
     def getData(self, sql=str, values=()):
         connection = self.getConnection()
@@ -76,7 +76,7 @@ class DatabaseProvider():
             return DatabaseResponse(True, 'Consulta Realizada com Sucesso.', rows)
         except Exception as error:
             connection.close()
-            return DatabaseResponse(False, 'Falha ao Executar Consulta.', error)
+            return DatabaseResponse(False, 'Falha ao Executar Consulta.', str(error))
     
     def insertLog(self, description=str, message='', status=ELog):
         connection = self.getConnection()
@@ -97,4 +97,4 @@ class DatabaseProvider():
         except Exception as error:
             connection.rollback()
             connection.close()
-            return DatabaseResponse(False, 'Falha ao Criar Log. Rollback Efetuado.', error)
+            return DatabaseResponse(False, 'Falha ao Criar Log. Rollback Efetuado.', str(error))

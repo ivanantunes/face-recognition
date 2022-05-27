@@ -1,6 +1,6 @@
 import configparser
 
-from models.Config import ConfigSystem
+from models.Config import ConfigLogin, ConfigSystem
 
 class ConfigProvider():
     config = configparser.ConfigParser()
@@ -13,6 +13,14 @@ class ConfigProvider():
         self.config.read(self.__pathConfig)
         configData = self.config['SYSTEM']
         return ConfigSystem(
-            DEBUG_MODE=configData['DEBUG_MODE'],
-            DEV_MODE=configData['DEV_MODE']
+            DEBUG_MODE=configData['DEBUG_MODE'] == 'True',
+            DEV_MODE=configData['DEV_MODE'] == 'True'
+        )
+    
+    def getConfigLogin(self):
+        self.config.read(self.__pathConfig)
+        configData = self.config['LOGIN']
+        return ConfigLogin(
+            USERNAME=configData['USERNAME'],
+            PASSWORD=configData['PASSWORD']
         )
