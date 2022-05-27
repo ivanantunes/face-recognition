@@ -13,7 +13,6 @@ class ConfigProvider():
         self.config.read(self.__pathConfig)
         configData = self.config['SYSTEM']
         return ConfigSystem(
-            DEBUG_MODE=configData['DEBUG_MODE']
+            DEBUG_MODE=configData['DEBUG_MODE'],
+            DEV_MODE=configData['DEV_MODE']
         )
-
-
