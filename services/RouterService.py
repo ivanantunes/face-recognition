@@ -8,7 +8,6 @@ from werkzeug.security import check_password_hash
 import base64
 import requests
 
-
 class RouterService():
     app = Flask("FaceRecognition")
     auth = HTTPBasicAuth()
@@ -105,11 +104,67 @@ class RouterService():
         if (response.status):
             return HttpResponse(OK, response.message)
             
-        print(response.response)
-
         return HttpResponse(INTERNAL_SERVER_ERROR, response.message, 'error', response.response)
     
     @app.route(rule='/register/persons', methods=['POST'])
     @auth.login_required
     def registerPersons():
         body = request.get_json()
+
+        for row in body:
+            if ("image" not in row):
+                return HttpResponse(BAD_REQUEST, "Imagem é Obrigatório.")
+        
+            if ("name" not in row):
+                return HttpResponse(BAD_REQUEST, "Nome é Obrigatório.")
+            
+            if ("type" not in row):
+                return HttpResponse(BAD_REQUEST, "Tipo é Obrigatório.")
+
+            if (row['type'] != 'P' and row['type'] != 'T'):
+                return HttpResponse(BAD_REQUEST, "Tipo Informado Inválido.")
+            
+            if (row['type'] == 'T' and "start_period" not in row):
+                return HttpResponse(BAD_REQUEST, "Período Inicial é Obrigatório")
+            
+            if (row['type'] == 'T' and "end_period" not in row):
+                return HttpResponse(BAD_REQUEST, "Período Final é Obrigatório")
+
+            pesImage = row['image']
+            pesName = row['name']
+            pesUuid = None
+            pesCard = None
+            pesType = row['type']
+            pesStartPeriod = None
+            pesEndPeriod = None
+            pesStatus = 'A'
+
+            if ('status' in row):
+                if (row['status'] != 'A' and row['status'] != 'I' and row['status'] != 'B'):
+                    return HttpResponse(BAD_REQUEST, "Status Inválido,")
+
+            if ('image_url' in row):
+                pesImage = base64.b64encode(requests.get(row['image_url']).content)
+            
+            if ('uuid' in row):
+                pesUuid = row['uuid']
+            
+            if ('card' in row):
+                pesCard = row['card']
+            
+            if ('start_period' in row):
+                pesStartPeriod = row['start_period']
+            
+            if ('end_period' in row):
+                pesEndPeriod = row['end_period']
+
+            sql = 'INSERT INTO PERSON(PES_IMG, PES_NAME, PES_UUID, PES_CARD, PES_TYPE, PES_START_PERIOD, PES_END_PERIOD, PES_STATUS) VALUES(?, ?, ?, ?, ?, ?, ?, ?)'
+            values = (pesImage, pesName, pesUuid, pesCard, pesType, pesStartPeriod, pesEndPeriod, pesStatus)
+
+            database = DatabaseProvider()
+
+            response = database.insert(sql, values)
+
+            if (not response.status):
+                return HttpResponse(INTERNAL_SERVER_ERROR, response.message, 'error', response.response)
+        return HttpResponse(OK, "Pessoas Cadastradas com Sucesso.")
