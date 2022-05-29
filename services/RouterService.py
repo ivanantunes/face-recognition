@@ -1,5 +1,6 @@
 from http.client import BAD_REQUEST, INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED
 from flask import Flask, request
+from enums.ELog import ELog
 from providers.ConfigProvider import ConfigProvider
 from providers.DatabaseProvider import DatabaseProvider
 from utils.HttpResponse import HttpResponse
@@ -102,8 +103,10 @@ class RouterService():
         response = database.insert(sql, values)
 
         if (response.status):
+            database.insertLog('[CADASTRO]-[PESSOA]', response.message, ELog.Log_Success)
             return HttpResponse(OK, response.message)
-            
+        
+        database.insertLog('[CADASTRO]-[PESSOA]', response.response, ELog.Log_Error)
         return HttpResponse(INTERNAL_SERVER_ERROR, response.message, 'error', response.response)
     
     @app.route(rule='/register/persons', methods=['POST'])
@@ -166,5 +169,8 @@ class RouterService():
             response = database.insert(sql, values)
 
             if (not response.status):
+                database.insertLog('[CADASTRO]-[PESSOAS]', response.response, ELog.Log_Error)
                 return HttpResponse(INTERNAL_SERVER_ERROR, response.message, 'error', response.response)
+        
+        database.insertLog('[CADASTRO]-[PESSOAS]', response.message, ELog.Log_Success)
         return HttpResponse(OK, "Pessoas Cadastradas com Sucesso.")
